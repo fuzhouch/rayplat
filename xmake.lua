@@ -5,6 +5,9 @@ add_requires("raylib-minimal 5.0", { alias = "raylib", system = false })
 add_requireconfs("raylib-minimal.libglvnd", { system = false })
 
 function copy_executable_to_lib(target)
+    -- This step is required for Linux to ensure executable
+    -- and dependencies (OpenGL, mostly) are put under same folder.
+    -- We can launch executable from lib/ folder.
     if is_plat("linux") then
         local bin_from = path.join(target:installdir(), "bin", target:filename())
         local bin_install = path.join(target:installdir(), "lib", target:filename())
@@ -22,7 +25,7 @@ function binary_link_flags(target)
     end
 end
 
-target("helloworld")
+target("rayplat")
     set_kind("binary")
     add_files("src/*.cpp")
     add_packages("raylib")
