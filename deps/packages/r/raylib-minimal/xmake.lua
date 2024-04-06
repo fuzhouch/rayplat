@@ -44,10 +44,10 @@ package("raylib-minimal")
         add_syslinks("gdi32", "user32", "winmm", "shell32")
     elseif is_plat("linux") then
         add_syslinks("pthread", "dl", "m")
-        add_deps("libglvnd")
+        -- add_deps("libglvnd")
         -- add_deps("libx11", "libxrandr", "libxrender", "libxinerama", "libxcursor", "libxi", "libxfixes", "libxext")
     end
-    add_deps("opengl", {optional = true})
+    -- add_deps("opengl", {optional = true})
 
     on_install("macosx|x86_64", function (package)
         os.cp("include/*.h", package:installdir("include"))
