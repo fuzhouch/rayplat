@@ -27,7 +27,7 @@ end
 
 target("rayplat")
     set_kind("binary")
-    add_files("src/*.cpp")
+    add_files("src/*.cpp", "src/*.c")
     add_packages("raylib")
     on_load(binary_link_flags)
     after_install(copy_executable_to_lib)
