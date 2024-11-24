@@ -4,6 +4,10 @@ build/
 package64/
 .cache/
 
+# Zig build system
+zig-out/
+.zig-cache/
+
 # MacOS Cache
 .DS_Store
 

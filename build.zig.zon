@@ -1,0 +1,16 @@
+.{
+    .name = "rayplat",
+    .version = "0.0.0",
+    .minimum_zig_version = "0.13.0",
+    .dependencies = .{
+        .raylib = .{
+            .path = "./raylib",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "README.md",
+    },
+}
