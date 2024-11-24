@@ -1,7 +1,7 @@
 add_rules("mode.debug", "mode.release")
 set_languages("c99", "c++20")
 add_repositories("local-repo deps")
-add_requires("raylib-minimal 5.0", { alias = "raylib", system = false })
+add_requires("raylib-minimal 5.5", { alias = "raylib", system = false })
 add_requireconfs("raylib-minimal.libglvnd", { system = false })
 
 function copy_executable_to_lib(target)
