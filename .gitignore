@@ -11,4 +11,7 @@ zig-out/
 # MacOS Cache
 .DS_Store
 
+# Ignore compile database.
+compile_commands.json
+
 
