@@ -1,7 +1,8 @@
 .{
-    .name = "rayplat",
+    .name = .rayplat,
     .version = "0.0.0",
-    .minimum_zig_version = "0.13.0",
+    .minimum_zig_version = "0.14.0",
+    .fingerprint = 0xd08d3d265a5a0ec3, // Changing this has security and trust implications.
     .dependencies = .{
         .raylib = .{
             .path = "./raylib",
