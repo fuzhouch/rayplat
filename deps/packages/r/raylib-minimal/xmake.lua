@@ -5,6 +5,10 @@ package("raylib-minimal")
     set_homepage("http://www.raylib.com")
     set_description("A simple and easy-to-use library to enjoy videogames programming.")
 
+    -- Referenced by Linux only.
+    add_configs("wayland", {description = "Enable Wayland (linux only)", default = false, type = "boolean"})
+    add_configs("x11", {description = "Enable X11 (linux only)", default = true, type = "boolean"})
+
     if is_plat("macosx") and is_arch("x86_64") then
         add_urls("https://github.com/raysan5/raylib/releases/download/$(version).tar.gz", {version = function (version)
             if version:ge("3.5.0") then
@@ -21,6 +25,7 @@ package("raylib-minimal")
         add_versions("4.2.0", "5f79c103b82c577698b01c7b2c166d0c2b51615886b7fabdc671199f0aaf4b38")
         add_versions("4.5.0", "63deb87ffc32e5eb2023ba763aaea2cb5f41bd37bbc07760651efe251bd76f3d")
         add_versions("5.0", "48e477d3dde2e20220572c9f93a332c48cf378fc1e1f205454b975180085565c")
+        add_versions("5.5", "930c67b676963c6cffbd965814664523081ecbf3d30fc9df4211d0064aa6ba39")
     else
         add_urls("https://github.com/raysan5/raylib/archive/$(version).tar.gz",
                  "https://github.com/raysan5/raylib.git")
@@ -32,6 +37,7 @@ package("raylib-minimal")
         add_versions("4.2.0", "676217604a5830cb4aa31e0ede0e4233c942e2fc5c206691bded58ebcd82a590")
         add_versions("4.5.0", "163378604f2293ea5ebf3238f50c8926addde72d1a6bc8998ac2e96074ba8af8")
         add_versions("5.0", "98f049b9ea2a9c40a14e4e543eeea1a7ec3090ebdcd329c4ca2cf98bc9793482")
+        add_versions("5.5", "aea98ecf5bc5c5e0b789a76de0083a21a70457050ea4cc2aec7566935f5e258e")
     end
 
     if not (is_plat("macosx") and is_arch("x86_64")) then
@@ -44,22 +50,28 @@ package("raylib-minimal")
         add_syslinks("gdi32", "user32", "winmm", "shell32")
     elseif is_plat("linux") then
         add_syslinks("pthread", "dl", "m")
-        -- add_deps("libglvnd")
-        -- add_deps("libx11", "libxrandr", "libxrender", "libxinerama", "libxcursor", "libxi", "libxfixes", "libxext")
+        -- No need to link to x11 or OpenGL. We follow dlopen() pattern.
     end
-    -- add_deps("opengl", {optional = true})
 
     on_install("macosx|x86_64", function (package)
         os.cp("include/*.h", package:installdir("include"))
         os.cp("lib/libraylib.a", package:installdir("lib"))
     end)
 
-    on_install("windows", "linux", "macosx|arm64", "mingw", function (package)
-        local configs = {"-DBUILD_EXAMPLES=OFF"}
+    on_install("windows", "macosx|arm64", "mingw", function (package)
+        local configs = {"-DBUILD_EXAMPLES=OFF", "-DBUILD_SHARED_LIBS=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
-        table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
-        import("package.tools.cmake").install(package, configs, {packagedeps = { "libglvnd" }})
+        import("package.tools.cmake").install(package, configs)
     end)
+
+    on_install("linux", function (package)
+        local configs = {"-DBUILD_EXAMPLES=OFF", "-DBUILD_SHARED_LIBS=OFF"}
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
+        table.insert(configs, "-DGLFW_BUILD_WAYLAND=" .. (package:config("wayland") and "ON" or "OFF"))
+        table.insert(configs, "-DGLFW_BUILD_X11=" .. (package:config("x11") and "ON" or "OFF"))
+        import("package.tools.cmake").install(package, configs)
+    end)
+
 
     on_test(function (package)
         assert(package:check_cxxsnippets({test = [[

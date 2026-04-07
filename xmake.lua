@@ -1,8 +1,7 @@
 add_rules("mode.debug", "mode.release")
 set_languages("c99", "c++20")
 add_repositories("local-repo deps")
-add_requires("raylib-minimal 5.5", { alias = "raylib", system = false })
-add_requireconfs("raylib-minimal.libglvnd", { system = false })
+add_requires("raylib-minimal 5.5", {alias = "raylib", system = false, configs = { wayland=true, x11=true }})
 
 function copy_executable_to_lib(target)
     -- This step is required for Linux to ensure executable
@@ -17,6 +16,8 @@ function copy_executable_to_lib(target)
 end
 
 function binary_link_flags(target)
+    -- Use static linking to ensure the binaries can be distributed
+    -- across different distros without breaking.
     if target:is_plat("linux") then
         target:add("rpathdirs", "$ORIGIN")
         target:add("ldflags", "-Wl,--no-undefined")
@@ -24,6 +25,7 @@ function binary_link_flags(target)
         target:add("ldflags", "-static-libstdc++")
     end
 end
+
 
 target("rayplat")
     set_kind("binary")
