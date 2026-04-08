@@ -1,5 +1,8 @@
 const std = @import("std");
 
+// This build.zig works only with zig 0.14.0 due to the requirements
+// of raylib 5.5. Please use zvm to manage your zig versions.
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
