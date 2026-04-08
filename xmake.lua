@@ -30,6 +30,26 @@ end
 target("rayplat")
     set_kind("binary")
     add_files("src/*.cpp", "src/*.c")
+    set_symbols("debug")
     add_packages("raylib")
     on_load(binary_link_flags)
+    -- Copy raylib DLLs/shared libs to the binary directory
+    after_build(function (target)
+        if is_plat("windows", "mingw") then
+             local libfiles = {}
+             for _, pkg in pairs(target:pkgs()) do
+                local pkg_installdir = pkg:installdir()
+                if pkg_installdir then
+                    local dllfiles = os.files(path.join(pkg_installdir, "bin", "*"))
+                    for _, dllfile in pairs(dllfiles) do
+                        os.cp(dllfile, target:targetdir())
+                    end
+                    local pdbfiles = os.files(path.join(pkg_installdir, "lib", "*.pdb"))
+                    for _, pdbfile in pairs(pdbfiles) do
+                        os.cp(pdbfile, target:targetdir())
+                    end
+                end
+            end
+        end
+    end)
     after_install(copy_executable_to_lib)

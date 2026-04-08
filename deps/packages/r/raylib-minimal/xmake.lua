@@ -52,13 +52,23 @@ package("raylib-minimal")
         add_syslinks("pthread", "dl", "m")
         -- No need to link to x11 or OpenGL. We follow dlopen() pattern.
     end
+    add_deps("opengl", {optional = false})
 
     on_install("macosx|x86_64", function (package)
         os.cp("include/*.h", package:installdir("include"))
         os.cp("lib/libraylib.a", package:installdir("lib"))
     end)
 
-    on_install("windows", "macosx|arm64", "mingw", function (package)
+    -- For Windows, we use raylib.dll. This allows we debug with PDB support.
+    -- Static library does not generate PDB, causing callstack within raylib
+    -- shown in WinDBG without callstack.
+    on_install("windows", "mingw", function (package)
+        local configs = {"-DBUILD_EXAMPLES=OFF", "-DBUILD_SHARED_LIBS=ON"}
+        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "RelWithDebInfo"))
+        import("package.tools.cmake").install(package, configs)
+    end)
+
+    on_install("macosx|arm64", function (package)
         local configs = {"-DBUILD_EXAMPLES=OFF", "-DBUILD_SHARED_LIBS=OFF"}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         import("package.tools.cmake").install(package, configs)
